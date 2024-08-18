@@ -83,7 +83,14 @@ function fetchPlayerData(playerId, apiKey) {
 
 function displayResults(players) {
     const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '<ul>' + players.map(player =>
-        `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
-    ).join('') + '</ul>';
+    const totalElo = players.reduce((acc, player) => acc + player.elo, 0);
+    const averageElo = (totalElo / players.length).toFixed(2);
+
+    resultsDiv.innerHTML =
+        '<ul>' +
+        players.map(player =>
+            `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
+        ).join('') +
+        '</ul>' +
+        `<p><strong>Average ELO:</strong> ${averageElo}</p>`;
 }
