@@ -35,7 +35,6 @@ function fetchTeamData(teamId) {
     .then(data => {
         console.log('API Response:', data);  // Log the entire response for inspection
 
-        // Use data.members instead of data.roster
         if (!data.members || !Array.isArray(data.members)) {
             throw new Error("Team members are undefined or not an array.");
         }
@@ -44,6 +43,8 @@ function fetchTeamData(teamId) {
         const playerPromises = players.map(playerId => fetchPlayerData(playerId, apiKey));
 
         Promise.all(playerPromises).then(playersInfo => {
+            // Sort players by ELO in descending order
+            playersInfo.sort((a, b) => b.elo - a.elo);
             displayResults(playersInfo);
         });
     })
@@ -69,17 +70,20 @@ function fetchPlayerData(playerId, apiKey) {
     })
     .then(playerData => {
         return {
-            nickname: playerData.nickname,
-            elo: playerData.games.cs2.faceit_elo
+            nickname: playerData.nickname || "Unknown",
+            elo: playerData.games && playerData.games.cs2 ? playerData.games.cs2.faceit_elo : 0,  // Default to 0 if no ELO
+            faceitUrl: `https://www.faceit.com/en/players/${encodeURIComponent(playerData.nickname || "Unknown")}`
         };
     })
     .catch(error => {
         console.error('Error fetching player data:', error);
-        return { nickname: "Unknown", elo: "Error" };
+        return { nickname: "Unknown", elo: 0, faceitUrl: "#" };  // Default to 0 if there's an error
     });
 }
 
 function displayResults(players) {
     const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '<ul>' + players.map(player => `<li>${player.nickname}: ${player.elo}</li>`).join('') + '</ul>';
+    resultsDiv.innerHTML = '<ul>' + players.map(player =>
+        `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
+    ).join('') + '</ul>';
 }
