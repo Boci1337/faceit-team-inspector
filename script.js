@@ -83,14 +83,23 @@ function fetchPlayerData(playerId, apiKey) {
 
 function displayResults(players) {
     const resultsDiv = document.getElementById('results');
+
+    // Calculate total ELO
     const totalElo = players.reduce((acc, player) => acc + player.elo, 0);
     const averageElo = (totalElo / players.length).toFixed(2);
 
+    // Calculate average ELO of the top 5 players
+    const top5Players = players.slice(0, 5);
+    const totalEloTop5 = top5Players.reduce((acc, player) => acc + player.elo, 0);
+    const averageEloTop5 = (totalEloTop5 / top5Players.length).toFixed(2);
+
+    // Display the results
     resultsDiv.innerHTML =
         '<ul>' +
         players.map(player =>
             `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
         ).join('') +
         '</ul>' +
-        `<p><strong>Average ELO:</strong> ${averageElo}</p>`;
+        `<p><strong>Average ELO:</strong> ${averageElo}</p>` +
+        `<p><strong>Average ELO of Top 5 Players:</strong> ${averageEloTop5}</p>`;
 }
