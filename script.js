@@ -103,3 +103,11 @@ function displayResults(players) {
         `<p><strong>Average ELO:</strong> ${averageElo}</p>` +
         `<p><strong>Average ELO of Top 5 Players:</strong> ${averageEloTop5}</p>`;
 }
+
+document.getElementById('darkModeSwitch').addEventListener('change', function() {
+    if (this.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+});

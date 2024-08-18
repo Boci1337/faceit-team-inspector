@@ -1,54 +1,159 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* Root for variables */
+:root {
+    --background-light: #f5f5f5;
+    --background-dark: #1c1c1c;
+    --text-light: #333;
+    --text-dark: #ddd;
+    --primary-color-light: #f0c808; /* Pleasant Yellow for light mode */
+    --primary-color-dark: #f4d35e;  /* Softer Yellow for dark mode */
+    --border-color: #e0e0e0;
 }
 
-.container {
-    background-color: #fff;
+/* Dark mode variables */
+[data-theme="dark"] {
+    --background-light: #1c1c1c;
+    --text-light: #ddd;
+    --border-color: #333;
+    --primary-color-light: var(--primary-color-dark);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-light);
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h1 {
     text-align: center;
+    color: var(--primary-color-light);
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 input[type="text"] {
-    width: 80%;
-    padding: 8px;
-    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    flex-grow: 1;
+    max-width: 400px;
 }
 
 button {
     padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    margin-left: 10px;
+    background-color: var(--primary-color-light);
+    color: #333;  /* Darker text color for better readability on yellow */
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
-}
-
-#results {
-    margin-top: 20px;
-    text-align: left;
+    background-color: var(--primary-color-dark);
 }
 
 #results ul {
-    list-style-type: none;
+    list-style: none;
+    max-width: 600px;
+    margin: 20px auto;
     padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background-dark);
 }
 
 #results li {
-    background-color: #f9f9f9;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+#results li:last-child {
+    border-bottom: none;
+}
+
+#results li a {
+    text-decoration: none;
+    color: var(--primary-color-light);
+    transition: color 0.3s;
+}
+
+#results li a:hover {
+    color: var(--primary-color-dark);
+}
+
+/* Centered Average ELO */
+#results p {
+    text-align: center;
+    font-size: 18px;
+    color: var(--primary-color-light);
+    margin-top: 10px;
+}
+
+/* Lightswitch-style dark mode toggle */
+.dark-mode-toggle {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color-light);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Dark mode text for switch */
+.switch-text {
+    margin-left: 10px;
+    font-size: 16px;
+    color: var(--primary-color-light);
 }
