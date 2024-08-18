@@ -1,0 +1,85 @@
+document.getElementById('teamForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const teamLink = document.getElementById('teamLink').value;
+    const teamId = extractTeamId(teamLink);
+
+    if (teamId) {
+        fetchTeamData(teamId);
+    } else {
+        alert('Invalid team link');
+    }
+});
+
+function extractTeamId(link) {
+    const regex = /teams\/([^\/]*)/;
+    const match = link.match(regex);
+    return match ? match[1] : null;
+}
+
+function fetchTeamData(teamId) {
+    const apiKey = '4fc1cd38-719e-4aba-96f7-6ec3b2c72b25';  // Replace with your FACEIT API key
+    const teamUrl = `https://cors-anywhere.herokuapp.com/https://open.faceit.com/data/v4/teams/${teamId}`;
+
+    fetch(teamUrl, {
+        headers: {
+            'Authorization': `Bearer ${apiKey}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('API Response:', data);  // Log the entire response for inspection
+
+        // Use data.members instead of data.roster
+        if (!data.members || !Array.isArray(data.members)) {
+            throw new Error("Team members are undefined or not an array.");
+        }
+
+        const players = data.members.map(member => member.user_id);
+        const playerPromises = players.map(playerId => fetchPlayerData(playerId, apiKey));
+
+        Promise.all(playerPromises).then(playersInfo => {
+            displayResults(playersInfo);
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching team data:', error);
+        document.getElementById('results').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+    });
+}
+
+function fetchPlayerData(playerId, apiKey) {
+    const playerUrl = `https://cors-anywhere.herokuapp.com/https://open.faceit.com/data/v4/players/${playerId}`;
+
+    return fetch(playerUrl, {
+        headers: {
+            'Authorization': `Bearer ${apiKey}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(playerData => {
+        return {
+            nickname: playerData.nickname,
+            elo: playerData.games.cs2.faceit_elo
+        };
+    })
+    .catch(error => {
+        console.error('Error fetching player data:', error);
+        return { nickname: "Unknown", elo: "Error" };
+    });
+}
+
+function displayResults(players) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '<ul>' + players.map(player => `<li>${player.nickname}: ${player.elo}</li>`).join('') + '</ul>';
+}
