@@ -66,14 +66,14 @@ button:hover {
     max-width: 600px;
     margin: 20px auto;
     padding: 0;
-    border: 1px solid var(--border-color);
+    border: 5px solid var(--border-color);
     border-radius: 8px;
     background-color: var(--background-dark);
 }
 
 #results li {
     padding: 15px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 3px solid var(--border-color);
     transition: background-color 0.3s;
 }
 
