@@ -84,7 +84,7 @@ The frontend is a static site (HTML/CSS/JS). You can host it using any static se
 
 - Serve locally with `Live Server` extension (VS Code)
 - Use `http-server` npm package
-- Deploy on your webserver under `/var/www/staging` or similar.
+- Deploy on your webserver nginx/apache or similar.
 
 6. **Open frontend in your browser:**
 
