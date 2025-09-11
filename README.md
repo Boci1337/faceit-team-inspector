@@ -44,6 +44,8 @@ This app is currently hosted at [boci.me](https://boci.me).
 ---
 
 ## Installation & Setup
+<details>
+  <summary><strong>Show Instructions</strong></summary>
 
 ### Prerequisites
 
@@ -91,6 +93,7 @@ The frontend is a static site (HTML/CSS/JS). You can host it using any static se
 Use your hosted URL or open the static `index.html` file and enter a FACEIT team link to fetch player ELO data.
 
 ---
+</details>
 
 ## Contribution
 
