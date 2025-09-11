@@ -1,113 +1,62 @@
-document.getElementById('teamForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+const darkModeSwitch = document.getElementById('darkModeSwitch');
 
-    const teamLink = document.getElementById('teamLink').value;
-    const teamId = extractTeamId(teamLink);
+// Set dark mode as default by removing the light theme attribute
+document.documentElement.removeAttribute('data-theme');
 
-    if (teamId) {
-        fetchTeamData(teamId);
-    } else {
-        alert('Invalid team link');
-    }
+// Make sure toggle switch checked is aligned with dark mode default
+darkModeSwitch.checked = true;
+
+// Toggle event listener to switch between dark (default) and light
+darkModeSwitch.addEventListener('change', () => {
+  if (darkModeSwitch.checked) {
+    document.documentElement.removeAttribute('data-theme'); // dark mode
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light'); // light mode
+  }
 });
 
-function extractTeamId(link) {
-    const regex = /teams\/([^\/]*)/;
-    const match = link.match(regex);
-    return match ? match[1] : null;
-}
 
-function fetchTeamData(teamId) {
-    const apiKey = '4fc1cd38-719e-4aba-96f7-6ec3b2c72b25';  // Replace with your FACEIT API key
-    const teamUrl = `https://cors-anywhere.herokuapp.com/https://open.faceit.com/data/v4/teams/${teamId}`;
+document.getElementById('teamForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const teamLink = document.getElementById('teamLink').value;
 
-    fetch(teamUrl, {
-        headers: {
-            'Authorization': `Bearer ${apiKey}`
-        }
-    })
+  fetch('http://10.8.8.14:3000/api/team?teamLink=' + encodeURIComponent(teamLink))
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+      if (!response.ok) {
+        return response.text().then(text => {
+          throw new Error(text);
+        });
+      }
+      return response.json();
     })
     .then(data => {
-        console.log('API Response:', data);  // Log the entire response for inspection
-
-        if (!data.members || !Array.isArray(data.members)) {
-            throw new Error("Team members are undefined or not an array.");
-        }
-
-        const players = data.members.map(member => member.user_id);
-        const playerPromises = players.map(playerId => fetchPlayerData(playerId, apiKey));
-
-        Promise.all(playerPromises).then(playersInfo => {
-            // Sort players by ELO in descending order
-            playersInfo.sort((a, b) => b.elo - a.elo);
-            displayResults(playersInfo);
-        });
+      if (data.error) {
+        alert('Error: ' + data.error);
+        return;
+      }
+      displayResults(data);
     })
     .catch(error => {
-        console.error('Error fetching team data:', error);
-        document.getElementById('results').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+      document.getElementById('results').innerHTML = `<p class="error">Error fetching data: ${error.message}</p>`;
+      console.error('Error fetching team data:', error);
     });
-}
-
-function fetchPlayerData(playerId, apiKey) {
-    const playerUrl = `https://cors-anywhere.herokuapp.com/https://open.faceit.com/data/v4/players/${playerId}`;
-
-    return fetch(playerUrl, {
-        headers: {
-            'Authorization': `Bearer ${apiKey}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(playerData => {
-        return {
-            nickname: playerData.nickname || "Unknown",
-            elo: playerData.games && playerData.games.cs2 ? playerData.games.cs2.faceit_elo : 0,  // Default to 0 if no ELO
-            faceitUrl: `https://www.faceit.com/en/players/${encodeURIComponent(playerData.nickname || "Unknown")}`
-        };
-    })
-    .catch(error => {
-        console.error('Error fetching player data:', error);
-        return { nickname: "Unknown", elo: 0, faceitUrl: "#" };  // Default to 0 if there's an error
-    });
-}
+});
 
 function displayResults(players) {
-    const resultsDiv = document.getElementById('results');
+  const resultsDiv = document.getElementById('results');
 
-    // Calculate total ELO
-    const totalElo = players.reduce((acc, player) => acc + player.elo, 0);
-    const averageElo = (totalElo / players.length).toFixed(2);
+  const totalElo = players.reduce((acc, p) => acc + p.elo, 0);
+  const averageElo = (totalElo / players.length).toFixed(2);
+  const top5Players = players.slice(0, 5);
+  const totalEloTop5 = top5Players.reduce((acc, p) => acc + p.elo, 0);
+  const averageEloTop5 = (totalEloTop5 / top5Players.length).toFixed(2);
 
-    // Calculate average ELO of the top 5 players
-    const top5Players = players.slice(0, 5);
-    const totalEloTop5 = top5Players.reduce((acc, player) => acc + player.elo, 0);
-    const averageEloTop5 = (totalEloTop5 / top5Players.length).toFixed(2);
-
-    // Display the results
-    resultsDiv.innerHTML =
-        '<ul>' +
-        players.map(player =>
-            `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
-        ).join('') +
-        '</ul>' +
-        `<p><strong>Average ELO:</strong> ${averageElo}</p>` +
-        `<p><strong>Average ELO of Top 5 Players:</strong> ${averageEloTop5}</p>`;
+  resultsDiv.innerHTML =
+    '<ul>' +
+    players.map(player =>
+      `<li><a href="${player.faceitUrl}" target="_blank">${player.nickname}</a>: ${player.elo}</li>`
+    ).join('') +
+    '</ul>' +
+    `<p><strong>Average ELO:</strong> ${averageElo}</p>` +
+    `<p><strong>Average ELO of Top 5 Players:</strong> ${averageEloTop5}</p>`;
 }
-
-document.getElementById('darkModeSwitch').addEventListener('change', function() {
-    if (this.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-    }
-});
