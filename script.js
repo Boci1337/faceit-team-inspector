@@ -20,7 +20,7 @@ document.getElementById('teamForm').addEventListener('submit', function(event) {
   event.preventDefault();
   const teamLink = document.getElementById('teamLink').value;
 
-  fetch('http://boci.me:3000/api/team?teamLink=' + encodeURIComponent(teamLink))
+  fetch('https://boci.me:3000/api/team?teamLink=' + encodeURIComponent(teamLink))
     .then(response => {
       if (!response.ok) {
         return response.text().then(text => {
