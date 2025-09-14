@@ -71,7 +71,7 @@ Create a file named `.env` or `titok.env` inside the `backend` folder with the f
 
 3. **Install backend dependencies:**
 ```
-npm install express node-fetch cors dotenv
+npm install express node-fetch cors dotenv express-rate-limit
 ```
 
 4. **Start the backend server:**
